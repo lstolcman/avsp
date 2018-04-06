@@ -38,41 +38,34 @@ def simhash(units):
         hashes.append(unit_hash_tab)
     return hashes
 
-
-def hamming_distance(hash1, hash2):
-    return int(scipy.spatial.distance.hamming(hash1, hash2)*len(hash1))
-
-if __name__ == '__main__':
-    units, queries = generate_units('test2/R.in')
-    #units = [['fakultet','elektrotehnike','i','racunarstva'], ['fakultet','elektrotehnike','j','racunarstva']]
-
-    t1=time.time()
-    hashes = simhash(units)
-    np.save('simhash.npy', hashes)
-    #hashes=np.load('us.npy')
+def hamming_distances(units, queries):
     differences = []
-    print('hashes', time.time()-t1)
-    t2=time.time()
-    i=0
     for i_text, k_bits in queries:
-        if i%10==0: print('i',i)
-        i+=1 
         i_text = int(i_text)
         k_bits = int(k_bits)
         difference = 0
-        #print('k_bits', k_bits)
-        #print('i_text',i_text)
-        for other_hash in hashes[:i_text]:#+hashes[i_text+1:]:
-            if (hamming_distance(hashes[i_text], other_hash)) <= k_bits:
+        for other_hash in hashes[:i_text]:
+            if (hd(hashes[i_text], other_hash)) <= k_bits:
                 difference += 1
         for other_hash in hashes[i_text+1:]:
-            if (hamming_distance(hashes[i_text], other_hash)) <= k_bits:
+            if (hd(hashes[i_text], other_hash)) <= k_bits:
                 difference += 1
-
         differences.append(difference)
+    return differences
+
+def hd(hash1, hash2):
+    return int(scipy.spatial.distance.hamming(hash1, hash2)*len(hash1))
+
+
+if __name__ == '__main__':
+    units, queries = generate_units('test2/R.in')
+
+    #hashes = simhash(units)
+    #np.save('simhash.npy', hashes)
+    hashes=np.load('simhash.npy')
+    differences = hamming_distances(units, queries)
     np.save('differences.npy', differences)
-    print('differences', time.time()-t2)
-    print('all', time.time()-t1)
+
     f = open('differences.txt', 'w')
     f.write('\n'.join(map(str, differences)))
     f.close()
