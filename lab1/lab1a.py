@@ -2,6 +2,7 @@ import numpy as np
 import hashlib
 import scipy.spatial
 import time
+import multiprocessing
 
 
 def generate_units(file_name):
@@ -38,19 +39,19 @@ def simhash(units):
         hashes.append(unit_hash_tab)
     return hashes
 
-def hamming_distances(units, queries):
+def hamming_distances(units, queries, hashes, out_dict, proc_num):
     differences = []
     for i_text, k_bits in queries:
         i_text = int(i_text)
         k_bits = int(k_bits)
         difference = 0
-
         for i, other_hash in enumerate(hashes):
             if i != i_text:
                 if (hd(hashes[i_text], other_hash)) <= k_bits:
                     difference += 1
         differences.append(difference)
-    return differences
+    out_dict[proc_num] = differences
+    #return differences
 
 def hd(hash1, hash2):
     return int(scipy.spatial.distance.hamming(hash1, hash2)*len(hash1))
@@ -59,20 +60,41 @@ def hd(hash1, hash2):
 if __name__ == '__main__':
     units, queries = generate_units('test2/R.in')
 
+    t1 = time.time()
     #hashes = simhash(units)
     #np.save('simhash.npy', hashes)
     hashes=np.load('simhash.npy')
 
-    t1 = time.time()
-    differences = hamming_distances(units, queries)
     t2 = time.time()
-    print('differences time', t2-t1)
 
-    np.save('differences.npy', differences)
+    procs = []
+    manager = multiprocessing.Manager()
+    md = manager.dict()
+    for proc_num in range(4):
+        print(proc_num)
+        procs.append(multiprocessing.Process(target=hamming_distances, args=(units, queries[250*proc_num:250*(proc_num+1)], hashes, md, proc_num)))
+    for p in procs:
+        p.start()
+    for p in procs:
+        p.join()
 
-    f = open('differences.txt', 'w')
-    f.write('\n'.join(map(str, differences)))
-    f.close()
+    t3 = time.time()
+    print('simhash time', t2-t1)
+    print('differences time', t3-t2)
+    print('all time', t3-t1)
+
+    differences = []
+
+    for num in range(len(md)):
+        differences += md[num]
+
+    #np.save('differences.npy', differences)
+
+
+    with open('differences.txt', 'w') as f:
+        for item in differences:
+            f.write('%s\n' % item)
+
 
 
 
