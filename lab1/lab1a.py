@@ -44,12 +44,11 @@ def hamming_distances(units, queries):
         i_text = int(i_text)
         k_bits = int(k_bits)
         difference = 0
-        for other_hash in hashes[:i_text]:
-            if (hd(hashes[i_text], other_hash)) <= k_bits:
-                difference += 1
-        for other_hash in hashes[i_text+1:]:
-            if (hd(hashes[i_text], other_hash)) <= k_bits:
-                difference += 1
+
+        for i, other_hash in enumerate(hashes):
+            if i != i_text:
+                if (hd(hashes[i_text], other_hash)) <= k_bits:
+                    difference += 1
         differences.append(difference)
     return differences
 
@@ -63,7 +62,12 @@ if __name__ == '__main__':
     #hashes = simhash(units)
     #np.save('simhash.npy', hashes)
     hashes=np.load('simhash.npy')
+
+    t1 = time.time()
     differences = hamming_distances(units, queries)
+    t2 = time.time()
+    print('differences time', t2-t1)
+
     np.save('differences.npy', differences)
 
     f = open('differences.txt', 'w')
