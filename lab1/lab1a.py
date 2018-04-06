@@ -18,7 +18,7 @@ def generate_units(file_name):
     return seqs, queries
 
 
-def simhash(units):
+def simhash(units, out_dict, proc_num):
     hashes = []
     for unit in units:
         unit_elemets = np.empty((0, 128))
@@ -37,7 +37,8 @@ def simhash(units):
         #unit_hash_bin = ''.join(map(str, unit_hash_tab))
         #unit_hash_hex = hex(int(unit_hash_bin, 2))[2:]
         hashes.append(unit_hash_tab)
-    return hashes
+    out_dict[proc_num] = hashes
+    #return hashes
 
 def hamming_distances(units, queries, hashes, out_dict, proc_num):
     differences = []
@@ -61,43 +62,51 @@ if __name__ == '__main__':
     units, queries = generate_units('test2/R.in')
 
     t1 = time.time()
-    #hashes = simhash(units)
+
+    procs = []
+    manager1 = multiprocessing.Manager()
+    md1 = manager1.dict()
+    for proc_num in range(4):
+        procs.append(multiprocessing.Process(target=simhash, args=(units[250*proc_num:250*(proc_num+1)], md1, proc_num)))
+    for p in procs:
+        p.start()
+    for p in procs:
+        p.join()
+
+    hashes = []
+    for num in range(len(md1)):
+        hashes += md1[num]
+
     #np.save('simhash.npy', hashes)
-    hashes=np.load('simhash.npy')
+    #hashes=np.load('simhash.npy')
 
     t2 = time.time()
-
+    
     procs = []
     manager = multiprocessing.Manager()
     md = manager.dict()
     for proc_num in range(4):
-        print(proc_num)
         procs.append(multiprocessing.Process(target=hamming_distances, args=(units, queries[250*proc_num:250*(proc_num+1)], hashes, md, proc_num)))
     for p in procs:
         p.start()
     for p in procs:
         p.join()
 
-    t3 = time.time()
-    print('simhash time', t2-t1)
-    print('differences time', t3-t2)
-    print('all time', t3-t1)
-
     differences = []
-
     for num in range(len(md)):
         differences += md[num]
 
     #np.save('differences.npy', differences)
+    #differences=np.load('differences.npy')
 
+    t3 = time.time()
+
+    print('simhash time', t2-t1)
+    print('differences time', t3-t2)
+    print('all time', t3-t1)
 
     with open('differences.txt', 'w') as f:
         for item in differences:
             f.write('%s\n' % item)
-
-
-
-
-
 
 
