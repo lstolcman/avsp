@@ -48,14 +48,28 @@ def hamming_distances(units, queries, hashes, out_dict, proc_num):
         difference = 0
         for i, other_hash in enumerate(hashes):
             if i != i_text:
-                if (hd(hashes[i_text], other_hash)) <= k_bits:
+                #if (hd(hashes[i_text], other_hash)) <= k_bits:
+                if hd2(hashes[i_text], other_hash, k_bits):
                     difference += 1
         differences.append(difference)
     out_dict[proc_num] = differences
     #return differences
 
+# hamming distance from scipy
+# time for example dataset: ~14s
 def hd(hash1, hash2):
     return int(scipy.spatial.distance.hamming(hash1, hash2)*len(hash1))
+
+# compute hamming distance, if more bits are different - break loop
+# time for example dataset: ~8s
+def hd2(hash1, hash2, max_difference):
+    different_bits = 0
+    for i in range(len(hash1)):
+        if hash1[i] != hash2[i]:
+            different_bits += 1
+            if different_bits > max_difference:
+                return False
+    return True
 
 
 if __name__ == '__main__':
@@ -81,7 +95,7 @@ if __name__ == '__main__':
     #hashes=np.load('simhash.npy')
 
     t2 = time.time()
-    
+
     procs = []
     manager = multiprocessing.Manager()
     md = manager.dict()
