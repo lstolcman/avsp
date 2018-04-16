@@ -14,7 +14,8 @@ def generate_units(file_name):
             seqs.append(f.readline().rstrip('\n').rstrip(' ').split(' '))
         num_of_queries = int(f.readline())
         for query in range(num_of_queries):
-            queries.append(f.readline().rstrip('\n').rstrip(' ').split(' '))
+            _i, _q = f.readline().rstrip('\n').rstrip(' ').split(' ')
+            queries.append([int(_i), int(_q)])
     return seqs, queries
 
 
@@ -43,8 +44,6 @@ def simhash(units, out_dict, proc_num):
 def hamming_distances(units, queries, hashes, out_dict, proc_num):
     differences = []
     for i_text, k_bits in queries:
-        i_text = int(i_text)
-        k_bits = int(k_bits)
         difference = 0
         for i, other_hash in enumerate(hashes):
             if i != i_text:
@@ -91,8 +90,8 @@ if __name__ == '__main__':
     for num in range(len(md1)):
         hashes += md1[num]
 
-    #np.save('simhash.npy', hashes)
-    #hashes=np.load('simhash.npy')
+    #np.save('lab1a_hashes.npy', hashes)
+    #hashes=np.load('lab1a_hashes.npy')
 
     t2 = time.time()
 
@@ -110,8 +109,8 @@ if __name__ == '__main__':
     for num in range(len(md)):
         differences += md[num]
 
-    #np.save('differences.npy', differences)
-    #differences=np.load('differences.npy')
+    #np.save('lab1a_differences.npy', differences)
+    #differences=np.load('lab1a_differences.npy')
 
     t3 = time.time()
 
@@ -119,7 +118,7 @@ if __name__ == '__main__':
     print('differences time', t3-t2)
     print('all time', t3-t1)
 
-    with open('differences.txt', 'w') as f:
+    with open('lab1a_differences.txt', 'w') as f:
         for item in differences:
             f.write('%s\n' % item)
 
