@@ -63,8 +63,8 @@ def hd(hash1, hash2):
 # time for example dataset: ~8s
 def hd2(hash1, hash2, max_difference):
     different_bits = 0
-    for i in range(len(hash1)):
-        if hash1[i] != hash2[i]:
+    for i,v in enumerate(hash1):
+        if v != hash2[i]:
             different_bits += 1
             if different_bits > max_difference:
                 return False
@@ -76,6 +76,7 @@ if __name__ == '__main__':
 
     t1 = time.time()
 
+    '''
     procs = []
     manager1 = multiprocessing.Manager()
     md1 = manager1.dict()
@@ -90,11 +91,13 @@ if __name__ == '__main__':
     for num in range(len(md1)):
         hashes += md1[num]
 
-    #np.save('lab1a_hashes.npy', hashes)
-    #hashes=np.load('lab1a_hashes.npy')
+    np.save('lab1a_hashes.npy', hashes)
+    '''
+    hashes=np.load('lab1a_hashes.npy')
 
     t2 = time.time()
 
+    '''
     procs = []
     manager = multiprocessing.Manager()
     md = manager.dict()
@@ -109,7 +112,11 @@ if __name__ == '__main__':
     for num in range(len(md)):
         differences += md[num]
 
-    #np.save('lab1a_differences.npy', differences)
+    np.save('lab1a_differences.npy', differences)
+    '''
+    out_dict=dict()
+    hamming_distances(units, queries, hashes, out_dict, 0)
+    differences=out_dict[0]
     #differences=np.load('lab1a_differences.npy')
 
     t3 = time.time()
