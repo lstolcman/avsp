@@ -28,7 +28,7 @@ def simhash(units, out_dict, proc_num):
             # make binary version, preserve 128bit lengts (leading zeros)
             element_md5_bin = format(int(element_md5_hex, 16), '0128b')
             # 0 -> -1  
-            element_md5_bin2 = np.array([(1 if int(v) > 0 else -1) for v in element_md5_bin])
+            element_md5_bin2 = np.array([(1 if v=='1' else -1) for v in element_md5_bin])
             # create matrix
             unit_elemets = np.append(unit_elemets, [element_md5_bin2], axis=0)
         # sum columns
