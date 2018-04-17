@@ -12,7 +12,7 @@ def hash2int(band, _hash):
 
 #simhash wrapper for multiprocessing
 def simhash2(units, out_dict, proc_num):
-    hashes = np.array([SimHash.simhash(x) for x in units])
+    hashes = [SimHash.simhash(x) for x in units]
     out_dict[proc_num] = hashes
 
 if __name__ == '__main__':
@@ -26,22 +26,19 @@ if __name__ == '__main__':
     manager1 = multiprocessing.Manager()
     md1 = manager1.dict()
     for proc_num in range(4):
-        procs.append(multiprocessing.Process(target=simhash2, args=(units[10*proc_num:10*(proc_num+1)], md1, proc_num)))
+        procs.append(multiprocessing.Process(target=simhash2, args=(units[12500*proc_num:12500*(proc_num+1)], md1, proc_num)))
     for p in procs:
         p.start()
     for p in procs:
         p.join()
 
     hashes = []
-    print(md1[0])
+    for num in range(len(md1)):
+        hashes += md1[num]
 
-    #np.save('lab1b_hash_'+t_num+'.npy', hashes)
+    np.save('lab1b_hash_'+t_num+'.npy', hashes)
     #'''
-    print(hashes[:2])
-    hashes2=np.load('lab1b_hash_'+t_num+'_.npy')
-    print(hashes2[:2])
-    print(np.array_equal(hashes, hashes2))
-    exit()
+    #hashes=np.load('lab1b_hash_'+t_num+'.npy')
     t2 = time.time()
     t_simhash = t2-t1
     print('simhash 50k', t_simhash)
