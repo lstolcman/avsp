@@ -58,9 +58,9 @@ def simhash(units):
 
 if __name__ == '__main__':
     units, queries = generate_units('test2/R.in')
+
     t1 = time.time()
-    with open('test2/R.in', 'r') as f:
-        hashes = [simhash(f.readline().split()) for _ in range(int(f.readline()))]
+    hashes = [simhash(x) for x in units]
     #hashes=np.load('lab1a_hashes.npy')
     t2 = time.time()
     print('simhash time', t2-t1)
