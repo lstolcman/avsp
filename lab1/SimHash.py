@@ -18,6 +18,8 @@ def hamming_distances(units, queries, hashes, out_dict, proc_num):
     differences = []
     for i_text, k_bits in queries:
         difference = 0
+        i_text = int(i_text)
+        k_bits = int(k_bits)
         for i, other_hash in enumerate(hashes):
             if i != i_text:
                 #if (hd(hashes[i_text], other_hash)) <= k_bits:
@@ -44,9 +46,11 @@ def hd2(hash1, hash2, max_difference):
     return True
 
 
+# helper function
 def hash_md5(unit):
     return '{0:0128b}'.format(int(hashlib.md5(unit.encode()).hexdigest(), 16))
 
+# simhash
 def simhash(units):
     a = np.array([np.array([1 if x == '1' else -1 for x in hash_md5(unit)]) for unit in units])
     return np.array([1 if x >= 0 else 0 for x in np.sum(a, axis=0)])
