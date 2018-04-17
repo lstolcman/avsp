@@ -80,19 +80,17 @@ if __name__ == '__main__':
     t1 = time.time()
     differences = []
     for qnum, maxbits in queries:
+        qnum=int(qnum)
+        maxbits=int(maxbits)
         similar_num = 0
         checked = set()
         checked.add(qnum)
         for i in range(8):
-            #print('band {},  {}'.format(i, qnum))
-            #print(candidates[i][hashes_bands[qnum][i]])
             for candidate in candidates[i][hashes_bands[qnum][i]]:
                 if candidate not in checked:
-                    #print('candidate {}  qnum {}'.format(candidate, qnum))
                     if SimHash.hd2(hashes[qnum], hashes[candidate], maxbits):
                         similar_num += 1
                     checked.add(candidate)
-        #print('similars my: {}'.format(similar_num))
         differences.append(similar_num)
 
     np.save('lab1b_differences_'+t_num+'.npy', hashes)
