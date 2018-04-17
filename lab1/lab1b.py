@@ -15,6 +15,25 @@ def simhash2(units, out_dict, proc_num):
     hashes = [SimHash.simhash(x) for x in units]
     out_dict[proc_num] = hashes
 
+
+def _differences(hashes, hashes_bands, candidates, queries, out_dict, proc_num):
+    differences = []
+    for qnum, maxbits in queries:
+        qnum=int(qnum)
+        maxbits=int(maxbits)
+        similar_num = 0
+        checked = set()
+        checked.add(qnum)
+        for i in range(8):
+            for candidate in candidates[i][hashes_bands[qnum][i]]:
+                if candidate not in checked:
+                    if SimHash.hd2(hashes[qnum], hashes[candidate], maxbits):
+                        similar_num += 1
+                    checked.add(candidate)
+        differences.append(similar_num)
+    out_dict[proc_num]=differences
+
+
 if __name__ == '__main__':
 
     t_num = 'test2'
@@ -77,21 +96,19 @@ if __name__ == '__main__':
 
 
 
-    t1 = time.time()
+    procs = []
+    manager1 = multiprocessing.Manager()
+    md1 = manager1.dict()
+    for proc_num in range(4):
+        procs.append(multiprocessing.Process(target=_differences, args=(hashes, hashes_bands, candidates, queries[12500*proc_num:12500*(proc_num+1)], md1, proc_num)))
+    for p in procs:
+        p.start()
+    for p in procs:
+        p.join()
+
     differences = []
-    for qnum, maxbits in queries:
-        qnum=int(qnum)
-        maxbits=int(maxbits)
-        similar_num = 0
-        checked = set()
-        checked.add(qnum)
-        for i in range(8):
-            for candidate in candidates[i][hashes_bands[qnum][i]]:
-                if candidate not in checked:
-                    if SimHash.hd2(hashes[qnum], hashes[candidate], maxbits):
-                        similar_num += 1
-                    checked.add(candidate)
-        differences.append(similar_num)
+    for num in range(len(md1)):
+        differences += md1[num]
 
     np.save('lab1b_differences_'+t_num+'.npy', hashes)
     #'''
