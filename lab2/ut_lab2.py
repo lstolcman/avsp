@@ -1,6 +1,7 @@
 import unittest
 from lab2 import DGIM
 
+
 class TestFromBigFile(unittest.TestCase):
     def setUp(self):
         self.dgim = DGIM(100)
@@ -57,6 +58,44 @@ class TestFromLabPDF(unittest.TestCase):
     def test_2nd_pass(self):
         self.dgim.add_stream('1000010010')
         self.assertEqual(self.dgim.calculate_ones(3), 0)
+
+
+class TestFromMyExamples1(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_1(self):
+        window_size = 10
+        dgim = DGIM(window_size)
+        dgim.add_stream('0110110110')
+        self.assertEqual(dgim.calculate_ones(k=10), 5)
+
+    def test_2(self):
+        window_size = 10
+        dgim = DGIM(window_size)
+        dgim.add_stream('01101')
+        self.assertEqual(dgim.buckets, {1:[5], 2:[3]})
+        dgim.add_stream('1011')
+        self.assertEqual(dgim.buckets, {1:[8,9], 2:[3,6]})
+        self.assertEqual(dgim.calculate_ones(k=4), 3)
+
+    def test_3(self):
+        window_size = 4
+        dgim = DGIM(window_size)
+        dgim.add_stream('1111')
+        self.assertEqual(dgim.buckets, {1:[3,4], 2:[2]})
+        dgim.add_stream('1')
+        self.assertEqual(dgim.buckets, {1:[5], 2:[2,4]})
+        dgim.add_stream('0')
+        self.assertEqual(dgim.calculate_ones(k=3), 2)
+        self.assertEqual(dgim.buckets, {1:[5], 2:[4]})
+
+    def test_4(self):
+        window_size = 4
+        dgim = DGIM(window_size)
+        dgim.add_stream('111110')
+        self.assertEqual(dgim.calculate_ones(k=3), 2)
+        self.assertEqual(dgim.buckets, {1:[5], 2:[4]})
 
 
 if __name__ == '__main__':
