@@ -50,7 +50,8 @@ class DGIM():
         AVSP_05a_Data_Streams_2.pdf @ p.34
         Last bucket - add half the size of the last bucket
         '''
-        ones[-1] = math.floor(ones[-1]/2)
+        if ones:
+            ones[-1] = math.floor(ones[-1]/2)
 
         return sum(ones)
 
@@ -71,7 +72,7 @@ if __name__ == '__main__':
         l[i]=v.rstrip()
 
 
-    l=l[:24]
+    #l=l[:24]
     expected=expected[:7]
     dgim = DGIM(l.pop(0))
     for i,v in enumerate(l):
@@ -82,5 +83,9 @@ if __name__ == '__main__':
             dgim.add_stream(v)
 
 
+    with open('oldbranch.t.out', 'w') as old:
+        for l in res:
+            old.write(str(l))
+            old.write('\n')
     print('eq', res==expected)
 
